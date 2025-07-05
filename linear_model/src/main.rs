@@ -3,15 +3,13 @@ use std::fs::File;
 use std::path::Path;
 
 pub mod model;
+use model::model::Model;
 
 fn main() {
-    let (header, body) = read_dataset();
+    let (_, _) = read_dataset();
+    let model = Model::new(vec![256, 128, 64, 32], 1);
 
-    println!("Header: {:?}", header);
-    let dense1 = model::Dense::new();
-
-    println!("bias: {}", dense1.bias);
-    println!("body size: {}", body.len());
+    println!("Model: {}", model);
 }
 
 fn read_dataset() -> (Vec<String>, Vec<Vec<f32>>) {
