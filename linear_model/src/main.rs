@@ -2,11 +2,16 @@ use ::std::io::{self, BufRead};
 use std::fs::File;
 use std::path::Path;
 
+pub mod model;
+
 fn main() {
     let (header, body) = read_dataset();
 
     println!("Header: {:?}", header);
-    println!("Body: {:?}", body);
+    let dense1 = model::Dense::new();
+
+    println!("bias: {}", dense1.bias);
+    println!("body size: {}", body.len());
 }
 
 fn read_dataset() -> (Vec<String>, Vec<Vec<f32>>) {
