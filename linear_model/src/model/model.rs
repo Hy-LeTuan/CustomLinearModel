@@ -1,3 +1,4 @@
+use crate::model::Compute;
 use crate::model::dense::Dense;
 use std::fmt;
 

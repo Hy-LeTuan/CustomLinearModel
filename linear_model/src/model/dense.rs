@@ -1,3 +1,4 @@
+use crate::model::Compute;
 use ndarray::prelude::*;
 use rand::Rng;
 use std::fmt;
@@ -28,6 +29,17 @@ impl Dense {
             bias: rand::thread_rng().gen_range(0.0..1.0),
             name: name,
         };
+    }
+}
+
+impl Compute for Dense {
+    fn compute_single(
+        &self,
+        x: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, Ix2>,
+    ) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, Ix2> {
+        let result = self.weights.dot(&x);
+
+        return result;
     }
 }
 
