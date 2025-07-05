@@ -11,6 +11,8 @@ fn main() {
 
 fn read_dataset() -> (Vec<String>, Vec<Vec<f32>>) {
     let file_path = Path::new("dataset").join("taiwan_real_estate.csv");
+    let age_col_index = 2;
+
     let mut header: Vec<String> = Vec::new();
     let mut body: Vec<Vec<f32>> = Vec::new();
 
@@ -34,27 +36,52 @@ fn read_dataset() -> (Vec<String>, Vec<Vec<f32>>) {
         let split_line = line_extracted.split(',');
 
         let mut temp_body = Vec::new();
+        let mut valid_line = true;
 
         for (chunk_index, chunk) in split_line.enumerate() {
             if index == 0 {
                 header.push(String::from(chunk));
             } else {
-                let value = chunk.parse::<f32>();
+                if chunk_index == age_col_index {
+                    let val_split: Vec<&str> = chunk.split(' ').collect();
 
-                // if value is not a valid number, skip that line
-                let value = match value {
-                    Ok(value) => value,
-                    Err(_) => {
-                        println!("Skipping line {index} from float parsing error");
-                        break;
-                    }
-                };
+                    let start = match val_split[0].parse::<f32>() {
+                        Ok(value) => value,
+                        Err(e) => {
+                            println!("{:?}", e);
+                            valid_line = false;
+                            break;
+                        }
+                    };
 
-                temp_body.push(value);
+                    let end = match val_split[val_split.len() - 1].parse::<f32>() {
+                        Ok(value) => value,
+                        Err(e) => {
+                            println!("{:?}", e);
+                            valid_line = false;
+                            break;
+                        }
+                    };
+
+                    temp_body.push(end - start);
+                } else {
+                    let value = chunk.parse::<f32>();
+
+                    // if value is not a valid number, skip that line
+                    let value = match value {
+                        Ok(value) => value,
+                        Err(_) => {
+                            println!("Skipping line {index} from float parsing error");
+                            break;
+                        }
+                    };
+
+                    temp_body.push(value);
+                }
             }
         }
 
-        if temp_body.len() > 0 {
+        if temp_body.len() > 0 && valid_line {
             body.push(temp_body);
         }
     }
