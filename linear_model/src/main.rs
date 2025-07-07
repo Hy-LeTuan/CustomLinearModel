@@ -1,93 +1,34 @@
-use ::std::io::{self, BufRead};
-use std::fs::File;
-use std::path::Path;
-
+pub mod dataset;
+pub mod loss;
 pub mod model;
+
+use crate::model::Compute;
 use model::model::Model;
 
+use ndarray::Array;
+use ndarray_rand::RandomExt;
+use ndarray_rand::rand_distr::Uniform;
+
 fn main() {
-    let (_, _) = read_dataset();
-    let model = Model::new(vec![256, 128, 64, 32], 1);
+    let (_, _) = dataset::read_dataset();
 
-    println!("Model: {}", model);
-}
+    let num_elem = 10;
+    let input_dim = 5;
 
-fn read_dataset() -> (Vec<String>, Vec<Vec<f32>>) {
-    let file_path = Path::new("dataset").join("taiwan_real_estate.csv");
-    let age_col_index = 2;
+    let model = Model::new(vec![input_dim, 16, 32, 64, 32, 16], 1);
 
-    let mut header: Vec<String> = Vec::new();
-    let mut body: Vec<Vec<f32>> = Vec::new();
+    let a = Array::random((num_elem, input_dim), Uniform::new(0.0, 1.0));
+    let target = Array::random((10, 1), Uniform::new(0.0, 1.0));
 
-    let file = File::open(file_path);
-    let file = match file {
-        Ok(f) => f,
-        Err(_) => {
-            println!("Error in opening file, aborting now");
-            return (header, body);
-        }
-    };
+    let res = model.compute_single(a);
 
-    let reader = io::BufReader::new(file);
+    let loss = loss::lse_loss(
+        &res,
+        &target,
+        model.get_weight(6 - 1).expect("Invalid layer index"),
+    );
 
-    for (index, line) in reader.lines().into_iter().enumerate() {
-        let line_extracted = match line {
-            Ok(s) => s,
-            Err(_) => return (header, body),
-        };
-
-        let split_line = line_extracted.split(',');
-
-        let mut temp_body = Vec::new();
-        let mut valid_line = true;
-
-        for (chunk_index, chunk) in split_line.enumerate() {
-            if index == 0 {
-                header.push(String::from(chunk));
-            } else {
-                if chunk_index == age_col_index {
-                    let val_split: Vec<&str> = chunk.split(' ').collect();
-
-                    let start = match val_split[0].parse::<f32>() {
-                        Ok(value) => value,
-                        Err(e) => {
-                            println!("{:?}", e);
-                            valid_line = false;
-                            break;
-                        }
-                    };
-
-                    let end = match val_split[val_split.len() - 1].parse::<f32>() {
-                        Ok(value) => value,
-                        Err(e) => {
-                            println!("{:?}", e);
-                            valid_line = false;
-                            break;
-                        }
-                    };
-
-                    temp_body.push(end - start);
-                } else {
-                    let value = chunk.parse::<f32>();
-
-                    // if value is not a valid number, skip that line
-                    let value = match value {
-                        Ok(value) => value,
-                        Err(_) => {
-                            println!("Skipping line {index} from float parsing error");
-                            break;
-                        }
-                    };
-
-                    temp_body.push(value);
-                }
-            }
-        }
-
-        if temp_body.len() > 0 && valid_line {
-            body.push(temp_body);
-        }
-    }
-
-    return (header, body);
+    // println!("Model: {}", model);
+    println!("Res: {:?} || Shape of res: {:?}", res, res.shape());
+    println!("Loss: {:?}", loss);
 }

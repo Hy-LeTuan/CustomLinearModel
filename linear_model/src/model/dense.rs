@@ -30,6 +30,10 @@ impl Dense {
             name: name,
         };
     }
+
+    pub fn get_weight(&self) -> &ndarray::ArrayBase<ndarray::OwnedRepr<f64>, Ix2> {
+        return &self.weights;
+    }
 }
 
 impl Compute for Dense {
@@ -37,8 +41,15 @@ impl Compute for Dense {
         &self,
         x: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, Ix2>,
     ) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, Ix2> {
-        let result = self.weights.dot(&x);
+        assert_eq!(
+            self.weights.shape()[0],
+            x.shape()[x.shape().len() - 1],
+            "Shape mismatched. Input has shape: {:?} but weight has shape: {:?}",
+            x.shape(),
+            self.weights.shape()
+        );
 
+        let result = x.dot(&self.weights);
         return result;
     }
 }

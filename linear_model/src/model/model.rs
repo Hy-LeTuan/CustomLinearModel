@@ -23,6 +23,33 @@ impl Model {
 
         return Self { layers: layers };
     }
+
+    pub fn get_weight(
+        &self,
+        i: usize,
+    ) -> Option<&ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Ix2>> {
+        // no negative indexing in Rust
+        if i >= self.layers.len() {
+            return None;
+        } else {
+            return Some(self.layers[i].get_weight());
+        }
+    }
+}
+
+impl Compute for Model {
+    fn compute_single(
+        &self,
+        x: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Ix2>,
+    ) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Ix2> {
+        let mut result = x;
+
+        for i in 0..self.layers.len() {
+            result = self.layers[i].compute_single(result);
+        }
+
+        return result;
+    }
 }
 
 impl fmt::Display for Model {
