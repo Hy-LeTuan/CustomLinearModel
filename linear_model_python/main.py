@@ -51,8 +51,9 @@ def create_dataset():
 
 
 def main():
-    values = cursor.execute("SELECT * FROM estate")
-    print(values)
+    cursor.execute("SELECT * FROM estate")
+    values = cursor.fetchall()
+    print("values: ", values)
 
 
 if __name__ == "__main__":
