@@ -1,5 +1,3 @@
-use std::ops::Mul;
-
 use ndarray::{ArrayBase, Ix2};
 
 #[derive(Debug)]
@@ -35,12 +33,8 @@ impl Tensor {
     pub fn shape(&self) -> &[usize] {
         return self.raw_array.shape();
     }
-}
 
-impl Mul for Tensor {
-    type Output = Tensor;
-
-    fn mul(self, rhs: Self) -> Tensor {
+    pub fn dot(&self, rhs: &Tensor) -> Tensor {
         let originate = (String::from(&self.name), String::from(&rhs.name));
         let name = format!("{}+{}", &self.name, &rhs.name);
         let tensor = self.raw_array.dot(&rhs.raw_array);

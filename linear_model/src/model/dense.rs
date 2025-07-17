@@ -39,16 +39,13 @@ impl Dense {
         };
     }
 
-    pub fn get_weight(&self) -> &ndarray::ArrayBase<ndarray::OwnedRepr<f64>, Ix2> {
-        return &self.weights.raw_array;
+    pub fn get_weight(&self) -> &Tensor {
+        return &self.weights;
     }
 }
 
 impl Compute for Dense {
-    fn compute_single(
-        &self,
-        x: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, Ix2>,
-    ) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, Ix2> {
+    fn compute_single(&self, x: Tensor) -> Tensor {
         assert_eq!(
             self.weights.shape()[0],
             x.shape()[x.shape().len() - 1],
@@ -57,7 +54,8 @@ impl Compute for Dense {
             self.weights.shape()
         );
 
-        let result = x.dot(&self.weights.raw_array);
+        let result = self.weights.dot(&x);
+
         return result;
     }
 }
