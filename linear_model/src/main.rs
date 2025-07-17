@@ -1,6 +1,7 @@
 pub mod dataset;
 pub mod loss;
 pub mod model;
+pub mod tensor;
 
 use crate::model::Compute;
 use model::model::Model;
