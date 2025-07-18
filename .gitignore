@@ -2,3 +2,6 @@
 /target/*/**
 */target/*/**
 **/*/target/*
+
+linear_model/target/*
+linear_model/target/*/**
