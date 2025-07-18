@@ -18,17 +18,16 @@ fn main() {
     let model = Model::new(vec![input_dim, 16, 32, 64, 32, 16], 1);
 
     let a = Array::random((num_elem, input_dim), Uniform::new(0.0, 1.0));
+
     let target = Array::random((10, 1), Uniform::new(0.0, 1.0));
 
     let res = model.compute_single(a);
 
-    let loss = loss::lse_loss(
-        &res,
-        &target,
-        model.get_weight(6 - 1).expect("Invalid layer index"),
-    );
+    let weight = ndarray::Array2::<f64>::eye(1);
 
-    // println!("Model: {}", model);
-    println!("Res: {:?} || Shape of res: {:?}", res, res.shape());
+    let loss = loss::lse_loss(&res, &target, &weight);
+
+    println!("Shape of res: {:?}", res.shape());
+    println!("Shape of weight: {:?}", weight.shape());
     println!("Loss: {:?}", loss);
 }
