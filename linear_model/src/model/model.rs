@@ -1,5 +1,7 @@
 use crate::model::Compute;
 use crate::model::dense::Dense;
+use crate::tensor::Tensor;
+
 use std::fmt;
 
 pub struct Model {
@@ -24,11 +26,7 @@ impl Model {
         return Self { layers: layers };
     }
 
-    pub fn get_weight(
-        &self,
-        i: usize,
-    ) -> Option<&ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Ix2>> {
-        // no negative indexing in Rust
+    pub fn get_weight(&self, i: usize) -> Option<&Tensor> {
         if i >= self.layers.len() {
             return None;
         } else {
@@ -38,10 +36,7 @@ impl Model {
 }
 
 impl Compute for Model {
-    fn compute_single(
-        &self,
-        x: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Ix2>,
-    ) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Ix2> {
+    fn compute_single(&self, x: Tensor) -> Tensor {
         let mut result = x;
 
         for i in 0..self.layers.len() {

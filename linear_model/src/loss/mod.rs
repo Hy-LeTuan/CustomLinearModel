@@ -17,3 +17,11 @@ pub fn lse_loss(
 
     return loss;
 }
+
+pub fn lse_loss_derivative(
+    input: &ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Ix2>,
+    loss: &ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Ix2>,
+) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Ix2> {
+    let res = -1.0 * (input.dot(loss));
+    return res;
+}

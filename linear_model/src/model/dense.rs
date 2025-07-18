@@ -1,11 +1,12 @@
 use crate::model::Compute;
+use crate::tensor::Tensor;
 use ndarray::prelude::*;
 use rand::Rng;
 use std::fmt;
 
 #[derive(Debug)]
 pub(crate) struct Dense {
-    pub weights: ndarray::Array<f64, Dim<[usize; 2]>>,
+    pub weights: Tensor,
     pub bias: f32,
     pub name: String,
 }
@@ -16,31 +17,35 @@ impl Dense {
         let lower = -1 as f64 * upper;
         let difference = upper - lower;
 
+        // compute weights
         let mut weights = Array::from_elem((in_features, out_features).f(), lower as f64);
-
         for i in 0..in_features {
             for j in 0..out_features {
                 weights[[i, j]] += rand::thread_rng().gen_range(0.0..1.0) as f64 * difference;
             }
         }
 
+        let tensor = Tensor::new(
+            weights,
+            format!("{}-Weight", name),
+            (String::from("internal"), String::from("internal")),
+            0.0,
+        );
+
         return Self {
-            weights: weights,
+            weights: tensor,
             bias: rand::thread_rng().gen_range(0.0..1.0),
             name: name,
         };
     }
 
-    pub fn get_weight(&self) -> &ndarray::ArrayBase<ndarray::OwnedRepr<f64>, Ix2> {
+    pub fn get_weight(&self) -> &Tensor {
         return &self.weights;
     }
 }
 
 impl Compute for Dense {
-    fn compute_single(
-        &self,
-        x: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, Ix2>,
-    ) -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, Ix2> {
+    fn compute_single(&self, x: Tensor) -> Tensor {
         assert_eq!(
             self.weights.shape()[0],
             x.shape()[x.shape().len() - 1],
@@ -49,7 +54,8 @@ impl Compute for Dense {
             self.weights.shape()
         );
 
-        let result = x.dot(&self.weights);
+        let result = self.weights.dot(&x);
+
         return result;
     }
 }
